@@ -16,3 +16,16 @@ import pandas as pd
 import tensorflow as tf
 import PIL
 
+
+
+# Encoding Face Images into a 128-Dimensional Vector
+# Using a ConvNet to Compute Encodings
+from tensorflow.keras.models import model_from_json
+
+json_file = open('keras-facenet-h5/model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+model = model_from_json(loaded_model_json)
+model.load_weights('keras-facenet-h5/model.h5')
+print(model.inputs)
+print(model.outputs)
