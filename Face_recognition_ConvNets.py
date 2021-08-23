@@ -162,5 +162,8 @@ def who_is_it(image_path, database, model):
 
     return min_dist, identity
 
+# end
+
+
 
 
