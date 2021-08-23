@@ -61,3 +61,63 @@ def triplet_loss(y_true, y_pred, alpha=0.2):
     loss = tf.reduce_sum(tf.maximum(basic_loss, 0))
 
     return loss
+
+
+# Loading the Pre-trained Model
+FRmodel = model
+
+# Applying the Model
+
+# Define a function that takes an image path , and returns its noralized encoding
+def img_to_encoding(image_path, model):
+    img = tf.keras.preprocessing.image.load_img(image_path, target_size=(160, 160))
+    img = np.around(np.array(img) / 255.0, decimals=12)
+    x_train = np.expand_dims(img, axis=0)
+    embedding = model.predict_on_batch(x_train)
+    return embedding / np.linalg.norm(embedding, ord=2)
+
+# Mapping each of the pictures in the database t's encoding
+database = {}
+database["danielle"] = img_to_encoding("images/danielle.png", FRmodel)
+database["younes"] = img_to_encoding("images/younes.jpg", FRmodel)
+database["tian"] = img_to_encoding("images/tian.jpg", FRmodel)
+database["andrew"] = img_to_encoding("images/andrew.jpg", FRmodel)
+database["kian"] = img_to_encoding("images/kian.jpg", FRmodel)
+database["dan"] = img_to_encoding("images/dan.jpg", FRmodel)
+database["sebastiano"] = img_to_encoding("images/sebastiano.jpg", FRmodel)
+database["bertrand"] = img_to_encoding("images/bertrand.jpg", FRmodel)
+database["kevin"] = img_to_encoding("images/kevin.jpg", FRmodel)
+database["felix"] = img_to_encoding("images/felix.jpg", FRmodel)
+database["benoit"] = img_to_encoding("images/benoit.jpg", FRmodel)
+database["arnaud"] = img_to_encoding("images/arnaud.jpg", FRmodel)
+
+
+def verify(image_path, identity, database, model):
+    """
+    Function that verifies if the person on the "image_path" image is "identity".
+
+    Arguments:
+        image_path -- path to an image
+        identity -- string, name of the person you'd like to verify the identity. Has to be an employee who works in the office.
+        database -- python dictionary mapping names of allowed people's names (strings) to their encodings (vectors).
+        model -- your Inception model instance in Keras
+
+    Returns:
+        dist -- distance between the image_path and the image of "identity" in the database.
+        door_open -- True, if the door should open. False otherwise.
+    """
+
+    # Step 1: Compute the encoding for the image. Use img_to_encoding() see example above.
+    encoding = img_to_encoding(image_path, model)
+    # Step 2: Compute distance with identity's image
+    dist = np.linalg.norm(encoding - database[identity])
+    # Step 3: Open the door if dist < 0.7, else don't open
+    if dist < 0.7:
+        print("It's " + str(identity) + ", welcome in!")
+        door_open = True
+    else:
+        print("It's not " + str(identity) + ", Access denied")
+        door_open = False
+
+    return dist, door_open
+
